@@ -4,7 +4,8 @@ import {
   searchRides,
   createRide,
   getMyPostedRides,
-  getMyRequestedRides
+  getMyRequestedRides,
+  deleteRide
 } from "../controllers/ridesController.js";
 
 const router = express.Router();
@@ -20,5 +21,7 @@ router.get("/mine/posted", authMiddleware, getMyPostedRides);
 
 /* rides I requested */
 router.get("/mine/requested", authMiddleware, getMyRequestedRides);
+
+router.delete("/:id", authMiddleware, deleteRide);
 
 export default router;

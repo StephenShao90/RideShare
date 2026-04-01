@@ -60,6 +60,50 @@ export async function createRide(req, res) {
   }
 }
 
+export async function deleteRide(req, res) {
+  const { id } = req.params;
+  const userId = req.user.userId;
+
+  try {
+    const existingRide = await pool.query(
+      `
+      SELECT id, driver_id
+      FROM rides
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    if (existingRide.rows.length === 0) {
+      return res.status(404).json({
+        error: "Ride not found",
+      });
+    }
+
+    if (existingRide.rows[0].driver_id !== userId) {
+      return res.status(403).json({
+        error: "You can only delete your own rides",
+      });
+    }
+
+    await pool.query(
+      `
+      DELETE FROM rides
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    res.status(200).json({
+      message: "Ride deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE RIDE ERROR:", error);
+    res.status(500).json({
+      error: "Failed to delete ride",
+    });
+  }
+}
 /* rides the current user posted */
 export async function getMyPostedRides(req, res) {
   try {

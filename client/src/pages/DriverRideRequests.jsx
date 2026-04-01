@@ -10,8 +10,8 @@ export default function DriverRideRequests() {
   const [refreshing, setRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
 
-  const [showMyRides, setShowMyRides] = useState(true);
-  const [showIncomingRequests, setShowIncomingRequests] = useState(true);
+  const [showMyRides, setShowMyRides] = useState(false);
+  const [showIncomingRequests, setShowIncomingRequests] = useState(false);
   const [showPastRides, setShowPastRides] = useState(false);
 
   useEffect(() => {
@@ -133,6 +133,44 @@ export default function DriverRideRequests() {
     }
   }
 
+  async function handleDeleteRecord(ride) {
+  setError("");
+
+  const isOfferedRide = ride.type === "offered";
+  const endpoint = isOfferedRide
+    ? `http://localhost:5000/api/rides/${ride.ride_id}`
+    : `http://localhost:5000/api/ride-requests/${ride.request_id}`;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to delete record");
+    }
+
+    if (isOfferedRide) {
+      setPostedRides((prev) => prev.filter((item) => item.ride_id !== ride.ride_id));
+      setIncomingRequests((prev) =>
+        prev.filter((request) => request.ride_id !== ride.ride_id)
+      );
+    } else {
+      setRequestedRides((prev) =>
+        prev.filter((item) => item.request_id !== ride.request_id)
+      );
+    }
+  } catch (err) {
+    setError(err.message || "Failed to delete record");
+  }
+  }
   const now = new Date();
 
   const myRides = useMemo(() => {
@@ -356,6 +394,7 @@ export default function DriverRideRequests() {
                         <RideCard
                           key={`${ride.type}-${ride.request_id || ride.ride_id}`}
                           ride={ride}
+                          onDelete={handleDeleteRecord}
                         />
                       ))}
                     </div>
@@ -567,6 +606,7 @@ export default function DriverRideRequests() {
                               <RideCard
                                 key={`past-${ride.type}-${ride.request_id || ride.ride_id}`}
                                 ride={ride}
+                                onDelete={handleDeleteRecord}
                               />
                             ))}
                           </div>
@@ -703,7 +743,7 @@ function EmptyBox({ text }) {
   );
 }
 
-function RideCard({ ride }) {
+function RideCard({ ride, onDelete }) {
   return (
     <div
       style={{
@@ -718,11 +758,12 @@ function RideCard({ ride }) {
         style={{
           display: "flex",
           justifyContent: "space-between",
+          alignItems: "flex-start",
           gap: "12px",
           flexWrap: "wrap",
         }}
       >
-        <div>
+        <div style={{ flex: 1 }}>
           <h3
             style={{
               margin: 0,
@@ -732,6 +773,7 @@ function RideCard({ ride }) {
           >
             {ride.origin} → {ride.destination}
           </h3>
+
           <p style={{ margin: "8px 0 0 0", color: "#7c2d12" }}>
             {new Date(ride.ride_date).toLocaleString()}
           </p>
@@ -757,7 +799,29 @@ function RideCard({ ride }) {
           )}
         </div>
 
-        <div style={{ textAlign: "right" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => onDelete(ride)}
+            title="Delete record"
+            style={{
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: "1.2rem",
+              lineHeight: 1,
+              padding: "4px",
+            }}
+          >
+            🗑️
+          </button>
+
           <p
             style={{
               margin: "0 0 8px 0",
@@ -774,7 +838,6 @@ function RideCard({ ride }) {
     </div>
   );
 }
-
 function getStatusPillStyle(status) {
   return {
     display: "inline-block",
