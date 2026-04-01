@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatbotWidget() {
+  const navigate = useNavigate();
+
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     { role: "assistant", text: "Hi, I’m your RideAgent. Where are you headed?" },
@@ -15,7 +18,23 @@ export default function ChatbotWidget() {
 
   async function sendMessage() {
     const trimmed = message.trim();
+
     if (!trimmed || loading) return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", text: trimmed },
+        {
+          role: "assistant",
+          text: "Please sign in first so I can help with your rides.",
+        },
+      ]);
+      setMessage("");
+      return;
+    }
 
     const nextMessages = [...messages, { role: "user", text: trimmed }];
     setMessages(nextMessages);
@@ -27,6 +46,7 @@ export default function ChatbotWidget() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           message: trimmed,
@@ -34,7 +54,23 @@ export default function ChatbotWidget() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: "Your session expired. Please sign in again.",
+          },
+        ]);
+
+        navigate("/signin", { replace: true });
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to send message.");
@@ -49,7 +85,8 @@ export default function ChatbotWidget() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, something went wrong while processing your request.",
+          text:
+            error.message || "Sorry, something went wrong while processing your request.",
         },
       ]);
     } finally {
@@ -79,7 +116,11 @@ export default function ChatbotWidget() {
               <div style={styles.headerTitle}>RideAgent</div>
             </div>
 
-            <button style={styles.headerIconButton} onClick={() => setOpen(false)}>
+            <button
+              type="button"
+              style={styles.headerIconButton}
+              onClick={() => setOpen(false)}
+            >
               ✕
             </button>
           </div>
@@ -134,7 +175,15 @@ export default function ChatbotWidget() {
                 style={styles.textarea}
                 rows={1}
               />
-              <button onClick={sendMessage} disabled={loading} style={styles.sendButton}>
+              <button
+                type="button"
+                onClick={sendMessage}
+                disabled={loading}
+                style={{
+                  ...styles.sendButton,
+                  ...(loading ? styles.sendButtonDisabled : {}),
+                }}
+              >
                 ➤
               </button>
             </div>
@@ -236,13 +285,6 @@ const styles = {
     fontSize: "18px",
     fontWeight: 700,
     lineHeight: 1.1,
-  },
-
-  headerStatus: {
-    marginTop: "6px",
-    fontSize: "13px",
-    opacity: 0.95,
-    fontWeight: 500,
   },
 
   headerIconButton: {
@@ -360,5 +402,10 @@ const styles = {
     justifyContent: "center",
     flexShrink: 0,
     boxShadow: "0 8px 18px rgba(249,115,22,0.22)",
+  },
+
+  sendButtonDisabled: {
+    opacity: 0.65,
+    cursor: "not-allowed",
   },
 };

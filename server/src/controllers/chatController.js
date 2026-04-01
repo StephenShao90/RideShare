@@ -26,6 +26,7 @@ export async function chatWithAgent(req, res) {
       sessionStore.set(sessionKey, {
         lastSearch: null,
         lastRideSelection: null,
+        lastRideDraft: {},
         lastRequestDraft: {},
       });
     }
