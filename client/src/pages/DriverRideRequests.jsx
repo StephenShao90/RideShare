@@ -31,17 +31,17 @@ export default function DriverRideRequests() {
       const token = localStorage.getItem("token");
 
       const [postedRes, requestedRes, incomingRes] = await Promise.all([
-        fetch("http://localhost:5000/api/rides/mine/posted", {
+        fetch("http://localhost:5001/api/rides/mine/posted", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch("http://localhost:5000/api/rides/mine/requested", {
+        fetch("http://localhost:5001/api/rides/mine/requested", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch("http://localhost:5000/api/ride-requests/driver", {
+        fetch("http://localhost:5001/api/ride-requests/driver", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -90,7 +90,7 @@ export default function DriverRideRequests() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/ride-requests/${requestId}/${action}`,
+        `http://localhost:5001/api/ride-requests/${requestId}/${action}`,
         {
           method: "PATCH",
           headers: {

@@ -29,7 +29,7 @@ export default function EditProfile() {
         setLoading(true);
         setError("");
 
-        const res = await fetch("http://localhost:5000/api/users/me", {
+        const res = await fetch("http://localhost:5001/api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -52,7 +52,7 @@ export default function EditProfile() {
         });
 
         setEmail(data.email || "");
-        setPreview(data.pfp_url ? `http://localhost:5000${data.pfp_url}` : "");
+        setPreview(data.pfp_url ? `http://localhost:5001${data.pfp_url}` : "");
       } catch (err) {
         setError(err.message || "Failed to load profile");
       } finally {
@@ -93,7 +93,7 @@ export default function EditProfile() {
       formData.append("bio", form.bio);
       if (pfp) formData.append("pfp", pfp);
 
-      const res = await fetch("http://localhost:5000/api/users/me", {
+      const res = await fetch("http://localhost:5001/api/users/me", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ export default function EditProfile() {
         throw new Error(data.error || "Failed to update profile");
       }
 
-      setPreview(data.pfp_url ? `http://localhost:5000${data.pfp_url}` : preview);
+      setPreview(data.pfp_url ? `http://localhost:5001${data.pfp_url}` : preview);
       setMessage("Profile updated successfully.");
     } catch (err) {
       setError(err.message || "Failed to update profile");

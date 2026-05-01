@@ -1,17 +1,36 @@
 import React, { useState } from "react";
 
 export default function OfferRide() {
+  // Stores all form input values.
+  // ride_date and ride_time are kept separate in the UI,
+  // then combined before sending to the backend.
   const [form, setForm] = useState({
     origin: "",
     destination: "",
     ride_date: "",
+    ride_time: "",
     available_seats: 1,
     price: 0,
   });
+
+  // Message shown when the ride is created successfully.
   const [message, setMessage] = useState("");
+
+  // Error shown when validation or the backend request fails.
   const [error, setError] = useState("");
+
+  // Tracks whether the form is currently submitting.
   const [loading, setLoading] = useState(false);
 
+  // Builds one timestamp only when both date and time exist.
+  // Example result: "2026-04-30T12:30:00"
+  const rideDateTime =
+    form.ride_date && form.ride_time
+      ? `${form.ride_date}T${form.ride_time}:00`
+      : "";
+
+  // Updates the form field that changed.
+  // The input name must match the property in the form state.
   function handleChange(e) {
     setForm({
       ...form,
@@ -21,21 +40,45 @@ export default function OfferRide() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // Clear old messages before trying to submit again.
     setMessage("");
     setError("");
+
+    // Basic frontend validation before calling the backend.
+    if (!form.origin || !form.destination) {
+      setError("Origin and destination are required");
+      return;
+    }
+
+    if (!form.ride_date || !form.ride_time) {
+      setError("Please select both a ride date and ride time");
+      return;
+    }
+
+    if (!form.available_seats || Number(form.available_seats) < 1) {
+      setError("Available seats must be at least 1");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/rides", {
+      const response = await fetch("http://localhost:5001/api/rides", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+
+        // Send ride_date as one combined timestamp because the backend
+        // already expects one field called ride_date.
         body: JSON.stringify({
-          ...form,
+          origin: form.origin,
+          destination: form.destination,
+          ride_date: rideDateTime,
           available_seats: Number(form.available_seats),
           price: Number(form.price),
         }),
@@ -48,10 +91,13 @@ export default function OfferRide() {
       }
 
       setMessage("Ride created successfully");
+
+      // Reset the form after a successful submission.
       setForm({
         origin: "",
         destination: "",
         ride_date: "",
+        ride_time: "",
         available_seats: 1,
         price: 0,
       });
@@ -97,6 +143,7 @@ export default function OfferRide() {
             >
               Offer a Ride
             </h1>
+
             <p
               style={{
                 marginTop: "8px",
@@ -126,6 +173,7 @@ export default function OfferRide() {
                 value={form.origin}
                 onChange={handleChange}
                 style={inputStyle}
+                required
               />
             </div>
 
@@ -138,17 +186,31 @@ export default function OfferRide() {
                 value={form.destination}
                 onChange={handleChange}
                 style={inputStyle}
+                required
               />
             </div>
 
             <div>
-              <label style={labelStyle}>Ride Date & Time</label>
+              <label style={labelStyle}>Ride Date</label>
               <input
-                type="datetime-local"
+                type="date"
                 name="ride_date"
                 value={form.ride_date}
                 onChange={handleChange}
                 style={inputStyle}
+                required
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Ride Time</label>
+              <input
+                type="time"
+                name="ride_time"
+                value={form.ride_time}
+                onChange={handleChange}
+                style={inputStyle}
+                required
               />
             </div>
 
@@ -161,6 +223,7 @@ export default function OfferRide() {
                 value={form.available_seats}
                 onChange={handleChange}
                 style={inputStyle}
+                required
               />
             </div>
 
@@ -174,6 +237,7 @@ export default function OfferRide() {
                 value={form.price}
                 onChange={handleChange}
                 style={inputStyle}
+                required
               />
             </div>
 
@@ -256,20 +320,24 @@ export default function OfferRide() {
                 <strong style={labelTextStyle}>From:</strong>{" "}
                 {form.origin || "Not set"}
               </p>
+
               <p style={detailStyle}>
                 <strong style={labelTextStyle}>To:</strong>{" "}
                 {form.destination || "Not set"}
               </p>
+
               <p style={detailStyle}>
                 <strong style={labelTextStyle}>Date:</strong>{" "}
-                {form.ride_date
-                  ? new Date(form.ride_date).toLocaleString()
+                {rideDateTime
+                  ? new Date(rideDateTime).toLocaleString()
                   : "Not set"}
               </p>
+
               <p style={detailStyle}>
                 <strong style={labelTextStyle}>Seats:</strong>{" "}
                 {form.available_seats}
               </p>
+
               <p style={detailStyle}>
                 <strong style={labelTextStyle}>Price:</strong> $
                 {Number(form.price || 0).toFixed(2)}
@@ -282,6 +350,7 @@ export default function OfferRide() {
   );
 }
 
+// Shared label styling for each form field.
 const labelStyle = {
   display: "block",
   marginBottom: "8px",
@@ -289,6 +358,7 @@ const labelStyle = {
   color: "#9a3412",
 };
 
+// Shared input styling for text, date, time, and number inputs.
 const inputStyle = {
   width: "100%",
   height: "48px",
@@ -301,6 +371,7 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
+// Styling for each preview row.
 const detailStyle = {
   margin: 0,
   color: "#7c2d12",
@@ -308,6 +379,7 @@ const detailStyle = {
   lineHeight: "1.45",
 };
 
+// Styling for the bold labels inside the preview card.
 const labelTextStyle = {
   color: "#9a3412",
 };

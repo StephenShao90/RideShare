@@ -36,7 +36,7 @@ app.use("/api/rides", rideRoutes);
 app.use("/api/ride-requests", rideRequestRoutes);
 app.use("/api/users", userRoutes);
 
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT) || 5001;
 
 async function startServer() {
   try {

@@ -33,7 +33,7 @@ export default function RequestRide() {
       }).toString();
 
       const response = await fetch(
-        `http://localhost:5000/api/rides/search?${query}`,
+        `http://localhost:5001/api/rides/search?${query}`,
         {
           method: "GET",
           headers: {
@@ -63,7 +63,7 @@ export default function RequestRide() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/ride-requests", {
+      const response = await fetch("http://localhost:5001/api/ride-requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

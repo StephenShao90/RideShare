@@ -26,17 +26,17 @@ export default function Dashboard() {
 
         const [dashboardResponse, notificationResponse, profileResponse] =
           await Promise.all([
-            fetch("http://localhost:5000/api/dashboard", {
+            fetch("http://localhost:5001/api/dashboard", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:5000/api/ride-requests/driver", {
+            fetch("http://localhost:5001/api/ride-requests/driver", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:5000/api/users/me", {
+            fetch("http://localhost:5001/api/users/me", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -175,7 +175,7 @@ export default function Dashboard() {
             >
               {profile.pfp ? (
                 <img
-                  src={`http://localhost:5000${profile.pfp}`}
+                  src={`http://localhost:5001${profile.pfp}`}
                   alt="Profile"
                   style={{
                     width: "100%",
