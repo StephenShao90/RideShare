@@ -13,9 +13,20 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked origin: ${origin}`));
+    },
     credentials: true,
   })
 );
@@ -26,6 +37,13 @@ app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "RideShare API is running",
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    ok: true,
+    service: "rideshare-api",
   });
 });
 
