@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
-
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function DriverRideRequests() {
   const [postedRides, setPostedRides] = useState([]);
@@ -93,7 +93,7 @@ export default function DriverRideRequests() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/ride-requests/${requestId}/${action}`,
+        `${API_BASE_URL}/api/ride-requests/${requestId}/${action}`,
         {
           method: "PATCH",
           headers: {

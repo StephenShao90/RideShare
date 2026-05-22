@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
-
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function RequestRide() {
   const [form, setForm] = useState({
@@ -36,7 +36,7 @@ export default function RequestRide() {
       }).toString();
 
       const response = await fetch(
-        `http://localhost:5000/api/rides/search?${query}`,
+        `${API_BASE_URL}/api/rides/search?${query}`,
         {
           method: "GET",
           headers: {
