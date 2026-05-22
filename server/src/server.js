@@ -18,18 +18,41 @@ const allowedOrigins = [
   "http://localhost:5173",
 ].filter(Boolean);
 
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allows Vercel preview URLs for this project/account
+  if (
+    origin.endsWith(".vercel.app") &&
+    origin.includes("ride-share") &&
+    origin.includes("stephenshao90")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error(`CORS blocked origin: ${origin}`));
+      console.warn(`CORS blocked origin: ${origin}`);
+      return callback(null, false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
   })
 );
+
+app.options("*", cors());
 
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
@@ -62,6 +85,7 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log("Allowed origins:", allowedOrigins);
     });
   } catch (error) {
     console.error("SERVER START ERROR:", error);
