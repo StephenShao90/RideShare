@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
+
+
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -26,17 +29,17 @@ export default function Dashboard() {
 
         const [dashboardResponse, notificationResponse, profileResponse] =
           await Promise.all([
-            fetch("http://localhost:5000/api/dashboard", {
+            fetch(`${API_BASE_URL}/api/dashboard`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:5000/api/ride-requests/driver", {
+            fetch(`${API_BASE_URL}/api/ride-requests/driver`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:5000/api/users/me", {
+            fetch(`${API_BASE_URL}/api/users/me`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -175,7 +178,7 @@ export default function Dashboard() {
             >
               {profile.pfp ? (
                 <img
-                  src={`http://localhost:5000${profile.pfp}`}
+                  src={`${API_BASE_URL}${profile.pfp}`}
                   alt="Profile"
                   style={{
                     width: "100%",

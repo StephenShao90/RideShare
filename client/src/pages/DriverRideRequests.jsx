@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
+
+
 export default function DriverRideRequests() {
   const [postedRides, setPostedRides] = useState([]);
   const [requestedRides, setRequestedRides] = useState([]);
@@ -31,17 +34,17 @@ export default function DriverRideRequests() {
       const token = localStorage.getItem("token");
 
       const [postedRes, requestedRes, incomingRes] = await Promise.all([
-        fetch("http://localhost:5000/api/rides/mine/posted", {
+        fetch(`${API_BASE_URL}/api/rides/mine/posted`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch("http://localhost:5000/api/rides/mine/requested", {
+        fetch(`${API_BASE_URL}/api/rides/mine/requested`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        fetch("http://localhost:5000/api/ride-requests/driver", {
+        fetch(`${API_BASE_URL}/api/ride-requests/driver`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

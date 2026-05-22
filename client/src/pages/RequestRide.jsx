@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
+
+
 export default function RequestRide() {
   const [form, setForm] = useState({
     origin: "",
@@ -63,7 +66,7 @@ export default function RequestRide() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/ride-requests", {
+      const response = await fetch(`${API_BASE_URL}/api/ride-requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

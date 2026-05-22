@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${API_BASE_URL}`;
+
+
 export default function OfferRide() {
   const [form, setForm] = useState({
     origin: "",
@@ -28,7 +31,7 @@ export default function OfferRide() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/rides", {
+      const response = await fetch(`${API_BASE_URL}/api/rides`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
